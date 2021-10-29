@@ -1,10 +1,13 @@
 <template>
-  <div style="height: 600px; width: 600px">
+  <div style="height: auto; width: 600px; border: 1px solid black">
     <vue3-chart-js
       :id="lineChart.id"
       :type="lineChart.type"
       :data="lineChart.data"
     ></vue3-chart-js>
+  </div>
+  <div v-for="coin in coins">
+    <p>{{ coin.name }}</p>
   </div>
   <p>{{ coins }}</p>
 </template>
@@ -38,51 +41,38 @@ export default {
   components: {
     Vue3ChartJs,
   },
-  setup() {
-    const lineChart = {
-      id: "line",
-      type: "line",
-      data: {
-        //x axis
-        //takes an array
-        labels: currency,
-        //y axis
-        //takes an array object
-        datasets: [
-          {
-            label: "Btc value in the last 10 weeks",
-            //takes an array
-            data: value,
-            backgroundColor: ["yellow"],
-            borderColor: ["black"],
-            fill: true,
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        //add this so the chart will respect our defined height
-        maintainAspectRatio: false,
-        //add this to force the defined width too
-        responsive: false,
-      },
-    };
 
-    // const beforeRenderLogic = (event) => {
-    //   //...
-    //   //if(a === b) {
-    //   //  event.preventDefault()
-    //   //}
-    // };
-
-    return {
-      lineChart,
-      // beforeRenderLogic,
-    };
-  },
   data() {
     return {
       coins: null,
+      lineChart: {
+        id: "line",
+        type: "line",
+        data: {
+          //x axis
+          //takes an array
+          labels: currency,
+          //y axis
+          //takes an array object
+          datasets: [
+            {
+              label: "Btc value in the last 10 weeks",
+              //takes an array
+              data: value,
+              backgroundColor: ["yellow"],
+              borderColor: ["black"],
+              fill: true,
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          //add this so the chart will respect our defined height
+          maintainAspectRatio: false,
+          //add this to force the defined width too
+          responsive: false,
+        },
+      },
     };
   },
   async mounted() {
@@ -90,7 +80,7 @@ export default {
       let response = await fetch(url);
       let data = await response.json();
       console.log(data);
-      this.coins = data.rates.usd;
+      this.coins = data.rates;
     } catch (err) {
       console.log(err);
     }
