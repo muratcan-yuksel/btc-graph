@@ -1,89 +1,84 @@
 <template>
-  <div style="height: auto; width: 600px; border: 1px solid black">
+  <div>
+    <h1>Home</h1>
+    <div ref="para">{{ currency }}--{{ names }}</div>
+    <button @click="handle">click to log</button>
+  </div>
+  <div style="height: 600px; width: 600px">
     <vue3-chart-js
-      :id="lineChart.id"
-      :type="lineChart.type"
-      :data="lineChart.data"
+      :id="barChart.id"
+      :type="barChart.type"
+      :data="barChart.data"
+      @before-render="beforeRenderLogic"
     ></vue3-chart-js>
   </div>
-  <div v-for="coin in coins">
-    <p>{{ coin.name }}</p>
-  </div>
-  <p>{{ coins }}</p>
 </template>
 
 <script>
 import Vue3ChartJs from "@j-t-mcc/vue3-chartjs";
-//get data
-let url = "		https://api.coingecko.com/api/v3/exchange_rates";
+import { ref, onBeforeUpdate } from "vue";
 
-//create the data
-//also, this will be the step where you'll get your data from a database
-const value = [
-  59, 529.8, 61, 312.5, 60, 861.1, 54, 942.5, 47, 666.9, 42, 686.8, 48, 306.7,
-  45, 161.9, 49, 918.4, 48, 897.1,
-];
-const currency = [
-  "Oct 24, 2021",
-  "Oct 17, 2021",
-  "Oct 10, 2021",
-  "Oct 03, 2021",
-  "Sep 26, 2021	",
-  "Sep 19, 2021",
-  "Sep 12, 2021",
-  "Sep 05, 2021",
-  "Aug 29, 2021",
-  "Aug 22, 2021",
-];
-
+let url =
+  "	https://sheltered-scrubland-49038.herokuapp.com/https://api.coindesk.com/v1/bpi/currentprice.json";
 export default {
-  name: "App",
+  name: "Fetching",
   components: {
     Vue3ChartJs,
   },
+  setup() {
+    //define ref
+    let para = ref([]);
+    let currency = ref([]);
+    let names = ref(["VueJs", "EmberJs", "ReactJs", "AngularJs"]);
+    //everything from fetch goes inside
+    let wholeData;
+    const getData = async () => {
+      try {
+        let res = await fetch(url);
+        console.log(res);
+        let data = await res.json();
+        // console.log(data.bpi);
+        wholeData = data.bpi;
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getData();
 
-  data() {
-    return {
-      coins: null,
-      lineChart: {
-        id: "line",
-        type: "line",
-        data: {
-          //x axis
-          //takes an array
-          labels: currency,
-          //y axis
-          //takes an array object
-          datasets: [
-            {
-              label: "Btc value in the last 10 weeks",
-              //takes an array
-              data: value,
-              backgroundColor: ["yellow"],
-              borderColor: ["black"],
-              fill: true,
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          //add this so the chart will respect our defined height
-          maintainAspectRatio: false,
-          //add this to force the defined width too
-          responsive: false,
-        },
+    // onBeforeUpdate(() => {
+    //   // for (const names in wholeData) {
+    //   //   console.log(names);
+    //   // }
+    //   console.log("mo");
+    // });
+
+    const handle = () => {
+      // console.log(currency.value, names.value);
+      console.log(wholeData);
+      //THIS WORKS
+      for (const name in wholeData) {
+        names.value.push(name);
+      }
+      console.log(names);
+    };
+    //this works too
+    const barChart = {
+      id: "bar",
+      type: "bar",
+      data: {
+        // labels: ["VueJs", "EmberJs", "ReactJs", "AngularJs"],
+        labels: names.value,
+        datasets: [
+          {
+            backgroundColor: ["#41B883", "#E46651", "#00D8FF", "#DD1B16"],
+            data: [40, 20, 80, 10],
+          },
+        ],
       },
     };
-  },
-  async mounted() {
-    try {
-      let response = await fetch(url);
-      let data = await response.json();
-      console.log(data);
-      this.coins = data.rates;
-    } catch (err) {
-      console.log(err);
-    }
+    return { para, currency, names, handle, wholeData, barChart };
   },
 };
 </script>
+
+<style></style>
